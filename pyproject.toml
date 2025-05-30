@@ -1,0 +1,31 @@
+[project]
+name = "movie-picker"
+version = "0.1.0"
+description = "A movie recommendation system"
+authors = [
+    {name = "Federico Antosiano"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "flask (>=3.1.1,<4.0.0)",
+    "numpy (>=2.2.6,<3.0.0)",
+    "keras (>=3.10.0,<4.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "pandas (>=2.2.3,<3.0.0)",
+    "requests (>=2.32.3,<3.0.0)",
+    "torch (>=2.7.0,<3.0.0)",
+    "torchvision (>=0.22.0,<0.23.0)",
+    "scikit-learn (>=1.6.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+packages = [
+    { include = "src" }
+]

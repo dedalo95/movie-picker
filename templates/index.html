@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Picker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="movie-container">
+        <img src="{{ movie.poster_path }}" alt="Movie Poster" class="movie-poster">
+        <div class="movie-info">
+            <h1>{{ movie.title }}</h1>
+            <div class="movie-genres">
+                <strong>Generi:</strong> {{ movie.genres }}
+            </div>
+            <div class="movie-tags">
+                <strong>Tag:</strong> {{ movie.tags }}
+            </div>
+            <p class="movie-overview">{{ movie.overview }}</p>
+        </div>
+        <div class="actions">
+            <button onclick="likeMovie()" class="action-btn like-btn">❤️ Like</button>
+            <button onclick="dislikeMovie()" class="action-btn dislike-btn">👎 Dislike</button>
+            <button onclick="notSeen()" class="action-btn watchlist-btn">✅ Watchlist</button>
+        </div>
+    </div>
+    <div class="navigation-buttons">
+        <button onclick="window.location.href='/liked'" class="nav-btn">Liked Movies</button>
+        <button onclick="window.location.href='/watchlist'" class="nav-btn">Watchlist</button>
+        <button onclick="window.location.href='/stats'" class="nav-btn">📊 Stats & AI</button>
+        <button onclick="trainModel()" class="nav-btn">Train Model</button>
+    </div>
+
+    <script>
+        function likeMovie() {
+            fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: '{{ movie.title }}',
+                    poster_path: '{{ movie.poster_path }}',
+                    overview: '{{ movie.overview }}',
+                    movieId: {{ movie.movieId }},
+                    genres: '{{ movie.genres }}',
+                    tags: '{{ movie.tags }}'
+                })
+            }).then(response => response.json()).then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+
+        function dislikeMovie() {
+            fetch('/dislike', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: '{{ movie.title }}',
+                    poster_path: '{{ movie.poster_path }}',
+                    overview: '{{ movie.overview }}',
+                    movieId: {{ movie.movieId }},
+                    genres: '{{ movie.genres }}',
+                    tags: '{{ movie.tags }}'
+                })
+            }).then(response => response.json()).then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+
+        function notSeen() {
+            fetch('/not_seen', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: '{{ movie.title }}',
+                    poster_path: '{{ movie.poster_path }}',
+                    overview: '{{ movie.overview }}',
+                    movieId: {{ movie.movieId }},
+                    genres: '{{ movie.genres }}',
+                    tags: '{{ movie.tags }}'
+                })
+            }).then(response => response.json()).then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            });
+        }
+
+        function trainModel() {
+            fetch('/train_model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json()).then(data => {
+                alert(data.message);
+            });
+        }
+    </script>
+</body>
+</html>

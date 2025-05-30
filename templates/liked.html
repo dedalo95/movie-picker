@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liked Movies</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1 style="text-align: center;">Liked Movies</h1>
+    <div class="liked-movies">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <img src="{{ movie.poster_path }}" alt="Movie Poster">
+            <h2>{{ movie.title }}</h2>
+            <p>{{ movie.overview }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <button class="return-home" onclick="window.location.href='/'">Return to Home</button>
+</body>
+</html>

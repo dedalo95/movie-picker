@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Movie Picker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .stats-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            margin-top: 5px;
+            color: #e0e0e0;
+        }
+        
+        .genre-list, .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .genre-item, .tag-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .training-controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .frequency-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            padding: 8px 12px;
+            color: white;
+            margin: 0 10px;
+            width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-container">
+        <h1>📊 Statistics & AI Model Info</h1>
+        
+        <div class="stat-card">
+            <h3>🎬 Movie Ratings</h3>
+            <div style="display: flex; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <div class="stat-value" id="total-liked">0</div>
+                    <div class="stat-label">❤️ Liked</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="stat-value" id="total-disliked">0</div>
+                    <div class="stat-label">👎 Disliked</div>
+                </div>
+                <div style="text-align: center;">
+                    <div class="stat-value" id="total-watchlist">0</div>
+                    <div class="stat-label">🤔 Watchlist</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>🤖 AI Model Status</h3>
+            <p><strong>Model Trained:</strong> <span id="model-trained">No</span></p>
+            <p><strong>Total Ratings:</strong> <span id="total-ratings">0</span></p>
+            <p><strong>Auto-training Frequency:</strong> Every <span id="train-frequency">5</span> ratings</p>
+            
+            <div class="training-controls">
+                <label>Change Training Frequency:</label>
+                <input type="number" id="frequency-input" class="frequency-input" min="1" max="50" value="5">
+                <button onclick="updateTrainingFrequency()" class="nav-btn">Update</button>
+                <button onclick="manualTraining()" class="nav-btn">Manual Training</button>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>🎭 Favorite Genres</h3>
+            <div class="genre-list" id="favorite-genres">
+                <!-- Popolato via JavaScript -->
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>🏷️ Top Tags</h3>
+            <div class="tag-list" id="favorite-tags">
+                <!-- Popolato via JavaScript -->
+            </div>
+        </div>
+        
+        <button class="return-home" onclick="window.location.href='/'">Return to Home</button>
+    </div>
+
+    <script>
+        function loadStats() {
+            fetch('/api/stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Aggiorna le statistiche base
+                    document.getElementById('total-liked').textContent = data.total_liked;
+                    document.getElementById('total-disliked').textContent = data.total_disliked;
+                    document.getElementById('total-watchlist').textContent = data.total_watchlist;
+                    document.getElementById('total-ratings').textContent = data.total_ratings;
+                    document.getElementById('train-frequency').textContent = data.auto_train_frequency;
+                    document.getElementById('frequency-input').value = data.auto_train_frequency;
+                    
+                    // Stato del modello
+                    document.getElementById('model-trained').textContent = data.model_trained ? 'Yes ✅' : 'No ❌';
+                    document.getElementById('model-trained').style.color = data.model_trained ? '#4CAF50' : '#f44336';
+                    
+                    // Generi favoriti
+                    const genresContainer = document.getElementById('favorite-genres');
+                    genresContainer.innerHTML = '';
+                    Object.entries(data.favorite_genres).forEach(([genre, count]) => {
+                        const genreElement = document.createElement('div');
+                        genreElement.className = 'genre-item';
+                        genreElement.textContent = `${genre} (${count})`;
+                        genresContainer.appendChild(genreElement);
+                    });
+                    
+                    // Tag favoriti
+                    const tagsContainer = document.getElementById('favorite-tags');
+                    tagsContainer.innerHTML = '';
+                    Object.entries(data.favorite_tags).forEach(([tag, count]) => {
+                        const tagElement = document.createElement('div');
+                        tagElement.className = 'tag-item';
+                        tagElement.textContent = `${tag} (${count})`;
+                        tagsContainer.appendChild(tagElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading stats:', error);
+                });
+        }
+        
+        function updateTrainingFrequency() {
+            const frequency = document.getElementById('frequency-input').value;
+            fetch('/api/set_train_frequency', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ frequency: parseInt(frequency) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    loadStats();
+                }
+            });
+        }
+        
+        function manualTraining() {
+            fetch('/train_model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadStats();
+            });
+        }
+        
+        // Carica le statistiche al caricamento della pagina
+        window.onload = loadStats;
+        
+        // Aggiorna le statistiche ogni 30 secondi
+        setInterval(loadStats, 30000);
+    </script>
+</body>
+</html>
